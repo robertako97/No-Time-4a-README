@@ -10,9 +10,9 @@ const inquirer = require('inquirer');
 //Constant README file template name
 
 // Markdowns
-const generateMarkdown = require('./utils/generateMarkdown.js');
+//const generateMarkdown = require('./utils/generateMarkdown.js');
 
-// TODO: Create an array of questions for user input
+// TODO: Create an array of questions for user input -> Declared in function
 /*
 const questions = {
     title: [],
@@ -29,9 +29,9 @@ const questions = {
 */
 
 
+
 // TODO: Create a function to write README file
 function writeToFile(fileName, data) {
-
 
 
  //   const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
@@ -84,12 +84,51 @@ function init() {
 
 
         ])
-        .then((answers) => {
-            console.log(answers);
 
+
+
+        .then((answers) => {
+
+            const READMEinfo = {
+                titleInput: answers.title,
+                descriptionInput: answers.description,
+                installationInput: answers.installation,
+                usageInput: answers.usage,
+                licenseInput: answers.license
+            }
+
+            const {titleInput, descriptionInput, installationInput, licenseInput, usageInput} = READMEinfo;
+
+            const generateMarkdown = require('./utils/generateMarkdown');
+            const markdown = generateMarkdown(licenseInput);
+
+            console.log(markdown);
+
+            const content = `
+  # My Project
+  
+  ## ${titleInput}
+  
+  This is a description.
+  
+  ## ${descriptionInput}
+  
+  To install this project, follow these steps...
+  
+  ## ${installationInput}
+  
+  Here's how you can use this project...
+  
+  ## ${usageInput}
+  
+  This project is licensed under the ${licenseInput} License.
+  
+  ${markdown}
+  
+  `;
 
             // Create/Write README
-         //   writeToFile(fileName, answers);
+            writeToFile("README.md", content);
 
         })
         .catch((error) => {
@@ -111,3 +150,4 @@ function init() {
 
 // Function call to initialize app
 init();
+
