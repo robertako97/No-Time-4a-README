@@ -2,9 +2,12 @@ let badge = "";
 let badgeLink ="";
 let licenseSection = "";
 
-// TODO: Create a function that returns a license badge based on which license is passed in
-// If there is no license, return an empty string -> Added unlicensed badge
 function renderLicenseBadge(licenseInput) {
+
+  if (licenseInput === "Apache License 2.0"){
+    badge = "[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)\n" +
+        "\n";
+  }
 
   if (licenseInput === "MIT") {
     badge = "[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n" +
@@ -24,33 +27,33 @@ badge = "[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-b
 
 }
 
-
-// TODO: Create a function that returns the license link
-// If there is no license, return an empty string
 function renderLicenseLink(licenseInput) {
 
+  if (licenseInput === "Apache License 2.0"){
+    badgeLink = "https://www.boost.org/LICENSE_1_0.txt\n";
+  }
+
   if (licenseInput === "MIT") {
-    badgeLink = "(https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n" +
-        "\n" ;
+    badgeLink = "https://opensource.org/licenses/MIT\n";
   }
 
   else if (licenseInput === "Mozilla") {
-    badgeLink = "(https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)\n" +
-        "\n" ;
+    badgeLink = "https://opensource.org/licenses/MPL-2.0\n";
   }
 
   else if (licenseInput === "Unlicense") {
-    badgeLink = "(https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)\n" +
-        "\n" ; }
+    badgeLink = "http://unlicense.org/\n" ;
+  }
 
 
   return badgeLink;
 }
 
-
-// TODO: Create a function that returns the license section of README
-// If there is no license, return an empty string
 function renderLicenseSection(licenseInput) {
+
+  if (licenseInput==="Apache License 2.0"){
+    licenseSection = "TBD License Apache License 2.0"
+  }
 
   if (licenseInput === "MIT") {
     licenseSection = "TBD License Section MIT";
@@ -70,9 +73,6 @@ function renderLicenseSection(licenseInput) {
 
 
 }
-
-
-// TODO: Create a function to generate markdown for README
 
 /*
 function generateMarkdown(data) {

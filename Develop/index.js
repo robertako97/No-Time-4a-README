@@ -1,41 +1,19 @@
-// TODO: Include packages needed for this application
-//Inquirer Added
-//Jquery Added (Not needed?)
-//const { JSDOM } = require( "jsdom" ); //Call a virtual DOM env
-//const { window } = new JSDOM( "" ); //Simulate HTML
-//const $ = require( "jquery" )( window ); //Use Jquery in virtual window
-
 const fs = require('fs');
 const inquirer = require('inquirer');
-//Constant README file template name
+const axios = require('axios');
 
-// Markdowns
-//const generateMarkdown = require('./utils/generateMarkdown.js');
-
-// TODO: Create an array of questions for user input -> Declared in function
-/*
-const questions = {
-    title: [],
-    description: [],
-    installation: [],
-    usage: [],
-    contributing: [],
-    instructions: [],
-    license: [],
-    username: [],
-    email: []
-
+const api = {
+    async getUser(username) {
+        try {
+            const response = await axios.get(`https://api.github.com/users/${username}`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    },
 };
-*/
 
-
-
-// TODO: Create a function to write README file
 function writeToFile(fileName, data) {
-
-
- //   const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-    // Write the data to the specified file
     fs.writeFile(fileName, data, err => {
         if (err) {
             console.error('Error writing to file:', err);
@@ -43,111 +21,131 @@ function writeToFile(fileName, data) {
             console.log(`Data has been written to ${fileName}`);
         }
     });
-
-
-
 }
 
-// TODO: Create a function to initialize app
 function init() {
-
     inquirer
         .prompt([
-            {
-                type: 'input',
-                message: 'What is your project title?',
-                name: 'title',
-            },
-            {
-                type: 'input',
-                message: 'Project description:',
-                name: 'description',
-            },
-            {
-                type: 'input',
-                message: 'Installation instructions:',
-                name: 'installation',
-            },
-            {
-                type: 'input',
-                message: 'Usage information:',
-                name: 'usage',
-            },
-            {
-                type: 'list',
-                message: "Choose a license for your project.",
-                choices: ['MIT', 'Mozilla', 'Unlicense'],
-                name: 'license'
-            }
+                {
+                    type: 'input',
+                    message: 'Project Title:',
+                    name: 'title',
+                },
+                {
+                    type: 'input',
+                    message: 'Add a project description:',
+                    name: 'description',
+                },
+                {
+                    type: 'input',
+                    message: 'Table of contents:',
+                    name: 'content',
+                },
+                {
+                    type: 'input',
+                    message: 'Installation instructions:',
+                    name: 'installation',
+                },
+                {
+                    type: 'input',
+                    message: 'Usage information:',
+                    name: 'usage',
+                },
+                {
+                    type: 'input',
+                    message: 'If you would like to contribute it, you can follow these guidelines for how to do so:',
+                    name: 'contributing',
+                },
+
+                {
+                    type: 'list',
+                    message: "Choose a license for your project.",
+                    choices: ['Apache License 2.0', 'MIT', 'Mozilla', 'Unlicense'],
+
+                    name: 'license'
+                },
+                {
+                    type: 'input',
+                    message: "What is the name of your GitHub repo?",
+                    name: 'repo',
+                    default: 'readme-generator',
+                }
 
 
-
-
-        ])
-
-
-
-        .then((answers) => {
-
+            ])
+        .then(answers => {
             const READMEinfo = {
                 titleInput: answers.title,
                 descriptionInput: answers.description,
                 installationInput: answers.installation,
                 usageInput: answers.usage,
-                licenseInput: answers.license
+                licenseInput: answers.license,
+                contentInput: answers.content,
+                contributingInput: answers.contributing,
+                testsInput: answers.tests,
+                username: answers.repo
             }
 
-            const {titleInput, descriptionInput, installationInput, licenseInput, usageInput} = READMEinfo;
+            const {username, testsInput, contributingInput, contentInput, titleInput, descriptionInput, installationInput, licenseInput, usageInput} = READMEinfo;
 
             const generateMarkdown = require('./utils/generateMarkdown');
             const markdown = generateMarkdown(licenseInput);
 
-            console.log(markdown);
+            initMain(username);
 
             const content = `
-  # My Project
+  # ${titleInput}
+  ## Description
+  ${descriptionInput}
   
-  ## ${titleInput}
+  ## Table of contents:
+  ${contentInput}
   
-  This is a description.
+  ## Installation
+  *Steps required to install project and how to get the development environment running:*\n
+  ${installationInput}
   
-  ## ${descriptionInput}
+  ## Usage
+  *Instructions and examples for use:*\n
+  ${usageInput}
   
-  To install this project, follow these steps...
+  ## Contributing
+  *If you would like to contribute, you can follow these guidelines for how to do so:*\n
+  ${contributingInput}
   
-  ## ${installationInput}
-  
-  Here's how you can use this project...
-  
-  ## ${usageInput}
-  
-  This project is licensed under the ${licenseInput} License.
-  
+  ## Tests
+  *Tests for application and how to run them:* \n
+  ${testsInput}
+    
+  This project is licensed under the ${licenseInput} License.\n
   ${markdown}
   
-  `;
+  ${username}
+  ${userInfo.url}
+  
+`;
 
-            // Create/Write README
-            writeToFile("README.md", content);
+
+            writeToFile('README.md', content);
 
         })
-        .catch((error) => {
+        .catch(error => {
             if (error.isTtyError) {
                 console.error("Prompt couldn't be rendered in the current environment");
             } else {
                 console.error('Something else went wrong');
             }
         });
-
-
-
-
-
-
-
-
 }
 
-// Function call to initialize app
-init();
 
+async function initMain(repo) {
+    try {
+        const userInfo = await api.getUser(repo); //GitHub repo name
+        console.log("Your GitHub user info: ", userInfo);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+init();
