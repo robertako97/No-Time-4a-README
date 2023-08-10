@@ -9,7 +9,7 @@ function renderLicenseBadge(licenseInput) {
   else if (licenseInput === "Mozilla") {
     badge = "[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)\n\n";}
   else if (licenseInput === "Unlicense") {
-    badge = "[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)\n\n"; }
+    badge = "[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://opensource.org/license/unlicense/)\n\n"; }
   else if (licenseInput === "Boost") {
     badge = "[![License](https://img.shields.io/badge/License-Boost_1.0-lightblue.svg)](https://www.boost.org/LICENSE_1_0.txt)\n\n";}
   else if (licenseInput === "BSD") {
