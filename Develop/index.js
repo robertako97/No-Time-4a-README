@@ -32,11 +32,6 @@ async function getUserInputs() {
         },
         {
             type: 'input',
-            message: 'Table of contents:',
-            name: 'content',
-        },
-        {
-            type: 'input',
             message: 'Installation instructions:',
             name: 'installation',
         },
@@ -58,7 +53,19 @@ async function getUserInputs() {
         {
             type: 'list',
             message: "Choose a license for your project.",
-            choices: ['Apache License 2.0', 'MIT', 'Mozilla', 'Unlicense'],
+            choices: ['Apache License 2.0',
+            'MIT',
+            'Mozilla',
+            'Unlicense',
+            'Boost',
+            'BSD',
+            'BSD 2-Clause License',
+            'CC0',
+            'Attribution 4.0 International',
+            'Attribution-NoDerivatives 4.0 International',
+            'Attribution-NonCommercial-ShareAlike 4.0 International',
+            'Eclipse',
+            'GNU GPL v3'],
             name: 'license'
         },
         {
@@ -102,10 +109,8 @@ function writeToFile(fileName, data) {
     });
 }
 ///////////////////////////////////////////////////
-
-
 ////////////////////////////////////////////////////
-//MAIN FUNCTION
+//MAIN FUNCTION & GENERATE MARKDOWN
 async function init() {
     try {
         const userInput = await getUserInputs();
@@ -117,7 +122,6 @@ async function init() {
             installationInput: userInput.installation,
             usageInput: userInput.usage,
             licenseInput: userInput.license,
-            contentInput: userInput.content,
             contributingInput: userInput.contributing,
             testsInput: userInput.tests,
             username: userInput.repo,
@@ -131,7 +135,6 @@ async function init() {
             username,
             testsInput,
             contributingInput,
-            contentInput,
             titleInput,
             descriptionInput,
             installationInput,
@@ -170,8 +173,11 @@ async function init() {
         }
 
         let content = `
+
+![Badge for GitHub repo top language](https://img.shields.io/github/languages/top/${username}/${repoLink}?style=flat&logo=appveyor) ![Badge for GitHub last commit](https://img.shields.io/github/last-commit/${username}/${repoLink}?style=flat&logo=appveyor) \n
+https://github.com/${username}/${repoLink}
 # ${titleInput}
-## Description
+### Description
 ${descriptionInput}
 
 ${draftToC}
@@ -179,7 +185,7 @@ ${draftToC}
 
         if (installationInput) {
             content += `
-## Installation
+### Installation
 *Steps required to install project and how to get the development environment running:*\n
 ${installationInput}
 `;
@@ -187,7 +193,7 @@ ${installationInput}
 
         if (usageInput) {
             content += `
-## Usage
+### Usage
 *Instructions and examples for use:*\n
 ${usageInput}
 `;
@@ -195,7 +201,7 @@ ${usageInput}
 
         if (contributingInput) {
             content += `
-## Contributing
+### Contributing
 *If you would like to contribute, you can follow these guidelines for how to do so:*\n
 ${contributingInput}
 `;
@@ -203,14 +209,14 @@ ${contributingInput}
 
         if (featuresInput) {
             content += `
-## Features
+### Features
 ${featuresInput}
 `;
         }
 
         if (testsInput) {
             content += `
-## Testing
+### Testing
 *Tests for application and how to run them:* \n
 ${testsInput}
 `;
@@ -220,16 +226,14 @@ ${testsInput}
 This project is licensed under the ${licenseInput} License.\n
 ${markdown}
 
-### Want to contact me?
+#### Want to contact me?
 
-**GITHUB:**
-${username}    
-**EMAIL:** 
+GITHUB:\n
+${username}\n 
+${repoURL}\n
+EMAIL: \n
 ${email}
 
-*${repoURL}*
-
-![Badge for GitHub repo top language](https://img.shields.io/github/languages/top/${username}/${repoLink}?style=flat&logo=appveyor) ![Badge for GitHub last commit](https://img.shields.io/github/last-commit/${username}/${repoLink}?style=flat&logo=appveyor)
 `;
 
         writeToFile('README.md', content);
@@ -241,8 +245,6 @@ ${email}
         }
     }
 }
-
-
 ////////////////////////////////////////////////////
 //INITIATE
 init();
