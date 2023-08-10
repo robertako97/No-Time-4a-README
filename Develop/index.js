@@ -8,11 +8,67 @@ const api = {
             const response = await axios.get(`https://api.github.com/users/${username}`);
             return response.data;
         } catch (error) {
-            console.log(error);
+            throw error; // Let the error propagate to a higher level
         }
     },
 };
+async function getUserInputs() {
+    const answers = await inquirer.prompt([
+        {
+            type: 'input',
+            message: 'Project Title:',
+            name: 'title',
+        },
+        {
+            type: 'input',
+            message: 'Add a project description:',
+            name: 'description',
+        },
+        {
+            type: 'input',
+            message: 'Table of contents:',
+            name: 'content',
+        },
+        {
+            type: 'input',
+            message: 'Installation instructions:',
+            name: 'installation',
+        },
+        {
+            type: 'input',
+            message: 'Usage information:',
+            name: 'usage',
+        },
+        {
+            type: 'input',
+            message: 'If you would like to contribute it, you can follow these guidelines for how to do so:',
+            name: 'contributing',
+        },
+        {
+            type: 'list',
+            message: "Choose a license for your project.",
+            choices: ['Apache License 2.0', 'MIT', 'Mozilla', 'Unlicense'],
+            name: 'license'
+        },
+        {
+            type: 'input',
+            message: "What is the name of your GitHub repo?",
+            name: 'repo',
+            default: 'readme-generator',
+        }
+    ]);
 
+    return answers;
+}
+async function initRepo(username) {
+    try {
+        const userInfo = await api.getUser(username); //GitHub repo name
+        //   console.log("Your GitHub user info: ", userInfo);
+        return userInfo;
+    } catch (error) {
+        console.log(error);
+    }
+}
 function writeToFile(fileName, data) {
     fs.writeFile(fileName, data, err => {
         if (err) {
@@ -23,77 +79,45 @@ function writeToFile(fileName, data) {
     });
 }
 
-function init() {
-    inquirer
-        .prompt([
-                {
-                    type: 'input',
-                    message: 'Project Title:',
-                    name: 'title',
-                },
-                {
-                    type: 'input',
-                    message: 'Add a project description:',
-                    name: 'description',
-                },
-                {
-                    type: 'input',
-                    message: 'Table of contents:',
-                    name: 'content',
-                },
-                {
-                    type: 'input',
-                    message: 'Installation instructions:',
-                    name: 'installation',
-                },
-                {
-                    type: 'input',
-                    message: 'Usage information:',
-                    name: 'usage',
-                },
-                {
-                    type: 'input',
-                    message: 'If you would like to contribute it, you can follow these guidelines for how to do so:',
-                    name: 'contributing',
-                },
+async function init() {
+    try {
+        const userInput = await getUserInputs();
+       // console.log('User inputs:', userInput);
 
-                {
-                    type: 'list',
-                    message: "Choose a license for your project.",
-                    choices: ['Apache License 2.0', 'MIT', 'Mozilla', 'Unlicense'],
+        const READMEinfo = {
+            titleInput: userInput.title,
+            descriptionInput: userInput.description,
+            installationInput: userInput.installation,
+            usageInput: userInput.usage,
+            licenseInput: userInput.license,
+            contentInput: userInput.content,
+            contributingInput: userInput.contributing,
+            testsInput: userInput.tests,
+            username: userInput.repo,
 
-                    name: 'license'
-                },
-                {
-                    type: 'input',
-                    message: "What is the name of your GitHub repo?",
-                    name: 'repo',
-                    default: 'readme-generator',
-                }
+        };
 
+        const {
+            username,
+            testsInput,
+            contributingInput,
+            contentInput,
+            titleInput,
+            descriptionInput,
+            installationInput,
+            licenseInput,
+            usageInput,
+        } = READMEinfo;
 
-            ])
-        .then(answers => {
-            const READMEinfo = {
-                titleInput: answers.title,
-                descriptionInput: answers.description,
-                installationInput: answers.installation,
-                usageInput: answers.usage,
-                licenseInput: answers.license,
-                contentInput: answers.content,
-                contributingInput: answers.contributing,
-                testsInput: answers.tests,
-                username: answers.repo
-            }
+        const generateMarkdown = require('./utils/generateMarkdown');
+        const markdown = generateMarkdown(licenseInput);
 
-            const {username, testsInput, contributingInput, contentInput, titleInput, descriptionInput, installationInput, licenseInput, usageInput} = READMEinfo;
+        const userInfo = await initRepo(username);
+       // console.log(userInfo)
+        const repoInfo = {repoURL:userInfo.url}
+        const {repoURL} = repoInfo;
 
-            const generateMarkdown = require('./utils/generateMarkdown');
-            const markdown = generateMarkdown(licenseInput);
-
-            initMain(username);
-
-            const content = `
+        const content = `
   # ${titleInput}
   ## Description
   ${descriptionInput}
@@ -121,31 +145,20 @@ function init() {
   ${markdown}
   
   ${username}
-  ${userInfo.url}
+  ${repoURL}
   
 `;
 
-
-            writeToFile('README.md', content);
-
-        })
-        .catch(error => {
-            if (error.isTtyError) {
-                console.error("Prompt couldn't be rendered in the current environment");
-            } else {
-                console.error('Something else went wrong');
-            }
-        });
-}
-
-
-async function initMain(repo) {
-    try {
-        const userInfo = await api.getUser(repo); //GitHub repo name
-        console.log("Your GitHub user info: ", userInfo);
+        writeToFile('README.md', content);
     } catch (error) {
-        console.log(error);
+        if (error.isTtyError) {
+            console.error("Prompt couldn't be rendered in the current environment");
+        } else {
+            console.error('Something else went wrong', error);
+        }
     }
 }
+
+
 
 init();
