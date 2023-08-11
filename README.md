@@ -1,4 +1,4 @@
-# README.md Generator: Node.js and ES6+
+# NO TIME FOR A README FILE!?
 
 ## Description
 
